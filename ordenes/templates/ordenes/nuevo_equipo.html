@@ -1,0 +1,34 @@
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar equipo</button>
+  </form>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const tipoField = document.getElementById('id_tipo');
+      const marcaField = document.getElementById('id_marca');
+      const modeloField = document.getElementById('id_modelo');
+  
+      if (marcaField) marcaField.disabled = true;
+      if (modeloField) modeloField.disabled = true;
+  
+      if (tipoField) {
+        tipoField.addEventListener('change', function () {
+          if (marcaField) {
+            marcaField.disabled = !tipoField.value;
+            modeloField.disabled = true; // Resetear modelo
+          }
+        });
+      }
+  
+      if (marcaField) {
+        marcaField.addEventListener('change', function () {
+          if (modeloField) {
+            modeloField.disabled = !marcaField.value;
+          }
+        });
+      }
+    });
+  </script>
+  
