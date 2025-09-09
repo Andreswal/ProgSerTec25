@@ -1,34 +1,106 @@
+<h2>Cargar nuevo equipo</h2>
+
 <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar equipo</button>
-  </form>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const tipoField = document.getElementById('id_tipo');
-      const marcaField = document.getElementById('id_marca');
-      const modeloField = document.getElementById('id_modelo');
-  
-      if (marcaField) marcaField.disabled = true;
-      if (modeloField) modeloField.disabled = true;
-  
-      if (tipoField) {
-        tipoField.addEventListener('change', function () {
-          if (marcaField) {
-            marcaField.disabled = !tipoField.value;
-            modeloField.disabled = true; // Resetear modelo
-          }
-        });
+  {% csrf_token %}
+
+  <label for="id_tipo">Tipo de equipo:</label>
+  <div style="display: flex; gap: 8px; align-items: center;">
+  {{ form.tipo }}
+  <a href="{% url 'crear_tipo_equipo' %}" target="_blank" style="text-decoration: none; font-size: 20px;">➕</a>
+  </div>
+
+  <label for="id_marca">Marca:</label>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    {{ form.marca }}
+    <a href="{% url 'crear_marca' %}" target="_blank" style="text-decoration: none; font-size: 20px;">➕</a>
+  </div>
+
+  <label for="id_modelo">Modelo:</label>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    {{ form.modelo }}
+    <a href="{% url 'crear_modelo' %}" target="_blank" style="text-decoration: none; font-size: 20px;">➕</a>
+  </div>
+
+  <!-- Si tenés más campos, agregalos acá manualmente -->
+  <button type="submit">Guardar equipo</button>
+</form>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const tipoField = document.getElementById('id_tipo');
+    const marcaField = document.getElementById('id_marca');
+    const modeloField = document.getElementById('id_modelo');
+    
+window.addEventListener("focus", function () {
+  fetch("{% url 'obtener_tipos_equipo' %}")
+    .then(response => response.json())
+    .then(data => {
+      if (!tipoField) return;
+      const valorSeleccionado = tipoField.value;
+      tipoField.innerHTML = "";
+
+      data.forEach(tipo => {
+        const option = document.createElement("option");
+        option.value = tipo.id;
+        option.textContent = tipo.nombre;
+        tipoField.appendChild(option);
+      });
+
+      if (valorSeleccionado) {
+        tipoField.value = valorSeleccionado;
       }
-  
-      if (marcaField) {
-        marcaField.addEventListener('change', function () {
-          if (modeloField) {
-            modeloField.disabled = !marcaField.value;
-          }
-        });
+
+      // Disparar el cambio para habilitar marca
+      tipoField.dispatchEvent(new Event('change'));
+    });
+});
+
+    if (marcaField) marcaField.disabled = true;
+    if (modeloField) modeloField.disabled = true;
+
+    if (tipoField) {
+      tipoField.addEventListener('change', function () {
+        if (marcaField) {
+          marcaField.disabled = !tipoField.value;
+          modeloField.disabled = true;
+          modeloField.innerHTML = '';
+        }
+      });
+    }
+
+    if (marcaField) {
+      marcaField.addEventListener('change', function () {
+        if (!marcaField.value) {
+          modeloField.disabled = true;
+          modeloField.innerHTML = '';
+          return;
+        }
+
+        modeloField.innerHTML = '<option>Cargando modelos...</option>';
+
+        fetch(`/ajax/modelos/?marca_id=${marcaField.value}`)
+          .then(response => response.json())
+          .then(data => {
+            modeloField.innerHTML = '';
+
+            data.forEach(modelo => {
+              const option = document.createElement('option');
+              option.value = modelo.id;
+              option.textContent = modelo.nombre;
+              modeloField.appendChild(option);
+            });
+
+            modeloField.disabled = false;
+          });
+      });
+    }
+
+    // Validación antes de enviar
+    document.querySelector('form').addEventListener('submit', function (e) {
+      if (!modeloField.value) {
+        e.preventDefault();
+        alert('Por favor seleccioná un modelo antes de guardar.');
       }
     });
-  </script>
-  
+  });
+</script>

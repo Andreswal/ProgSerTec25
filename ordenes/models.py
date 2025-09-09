@@ -54,7 +54,8 @@ class Modelo(models.Model):
         unique_together = ('nombre', 'marca')  # Evita duplicados por marca
 
     def __str__(self):
-        return f"{self.marca.nombre} {self.nombre}"
+        return self.nombre
+
 
 
 # 📱 Equipo ingresado por el cliente

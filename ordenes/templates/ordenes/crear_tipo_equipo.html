@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear tipo de equipo</title>
+</head>
+<body>
+  <h2>Crear nuevo tipo de equipo</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar tipo</button>
+  </form>
+</body>
+</html>
