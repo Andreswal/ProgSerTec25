@@ -1,8 +1,8 @@
-from django.urls import path
-from ordenes import views as ordenes_views
+
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('nuevo-equipo/', ordenes_views.nuevo_equipo, name='nuevo_equipo'),
-    path('ajax/modelos/', ordenes_views.modelos_por_marca, name='ajax_modelos'),
+    path('admin/', admin.site.urls),
+    path('', include('ordenes.urls')),  # 👈 Esto conecta la raíz con tu vista 'inicio'
 ]
-

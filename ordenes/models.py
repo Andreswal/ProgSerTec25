@@ -2,15 +2,6 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import date
 
-# 🧍 Cliente que deja el equipo
-class Cliente(models.Model):
-    nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=20)
-    email = models.EmailField(blank=True, null=True)
-    direccion = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.nombre} ({self.telefono})"
 
 # 📋 Orden de trabajo asociada a un equipo
 class OrdenTrabajo(models.Model):
@@ -52,6 +43,20 @@ class Modelo(models.Model):
 
     class Meta:
         unique_together = ('nombre', 'marca')  # Evita duplicados por marca
+
+    def __str__(self):
+        return self.nombre
+
+# 🧍 Cliente
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=20, blank=True, default="Sin teléfono")
+    telefono_alternativo = models.CharField(max_length=20, blank=True, default="Sin alternativo")
+    email = models.EmailField(blank=True, default="sin_email@ejemplo.com")
+    direccion = models.CharField(max_length=200, blank=True, default="Sin dirección")
+    provincia = models.CharField(max_length=100, blank=True, default="Sin provincia")
+    ciudad = models.CharField(max_length=100, blank=True, default="Sin ciudad")
+    observaciones = models.TextField(blank=True, default="Sin observaciones")
 
     def __str__(self):
         return self.nombre
@@ -118,3 +123,4 @@ class Equipo(models.Model):
 
         if crear_orden:
             OrdenTrabajo.objects.create(equipo=self)
+

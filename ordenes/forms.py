@@ -2,21 +2,18 @@ from django import forms
 from .models import Equipo
 from .models import TipoEquipo
 
+from django import forms
+from .models import Cliente, Equipo
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = '__all__'
+
 class EquipoForm(forms.ModelForm):
     class Meta:
         model = Equipo
-        fields = [
-            'cliente',         # 👈 aparece primero
-            'tipo',
-            'marca',
-            'modelo',
-            'imei',
-            'numero_serie',
-            'accesorios',
-            'estado_visual',
-            'falla_declarada',
-            'fecha_compra',
-        ]
+        fields = '__all__'
 
 from django import forms
 from .models import Marca
@@ -37,3 +34,10 @@ class TipoEquipoForm(forms.ModelForm):
     class Meta:
         model = TipoEquipo
         fields = ['nombre']
+
+from .models import Cliente
+
+from django import forms
+from .models import Cliente
+
+

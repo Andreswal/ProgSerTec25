@@ -1,0 +1,6 @@
+<form id="form-cliente" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar cliente</button>
+  </form>
+  

@@ -1,0 +1,24 @@
+<h1>Lista de equipos ingresados</h1>
+
+<table border="1" cellpadding="6">
+  <tr>
+    <th>ID</th>
+    <th>Tipo</th>
+    <th>Marca</th>
+    <th>Modelo</th>
+    <th>IMEI</th>
+    <th>Cliente</th>
+  </tr>
+  {% for equipo in equipos %}
+  <tr>
+    <td>{{ equipo.id }}</td>
+    <td>{{ equipo.tipo }}</td>
+    <td>{{ equipo.marca }}</td>
+    <td>{{ equipo.modelo }}</td>
+    <td>{{ equipo.imei }}</td>
+    <td>{{ equipo.cliente }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6">No hay equipos registrados.</td></tr>
+  {% endfor %}
+</table>

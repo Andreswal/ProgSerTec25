@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # 👈 Panel de administración
     path('', include('reparaciones.urls')),  # 👈 Rutas de tu app principal
     path('ordenes/', include('ordenes.urls')),
+   
 
 ]
 

@@ -1,0 +1,118 @@
+<h1>Panel principal de gestión</h1>
+
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 300px;">
+  <button onclick="crearVentanaOrden()" style="width: 100%;">➕ Crear nueva orden de trabajo</button>
+
+  <a href="{% url 'listar_equipos' %}">
+    <button style="width: 100%;">📋 Ver lista de equipos</button>
+  </a>
+
+  <a href="{% url 'nuevo_equipo' %}">
+    <button style="width: 100%;">➕ Cargar nuevo equipo</button>
+  </a>
+
+  <a href="{% url 'listar_clientes' %}">
+    <button style="width: 100%;">👤 Ver clientes cargados</button>
+  </a>
+
+  <button disabled style="width: 100%; opacity: 0.5;">📊 Reportes (próximamente)</button>
+  <button disabled style="width: 100%; opacity: 0.5;">🛠️ Diagnóstico técnico (próximamente)</button>
+</div>
+
+<div id="area-trabajo" style="margin-top: 20px;"></div>
+
+
+<div id="modal-equipo" class="modal" style="display:none;">
+  <div class="modal-contenido">
+    <span class="cerrar" onclick="cerrarModal('equipo')">&times;</span>
+    <div id="formulario-equipo"></div>
+  </div>
+</div>
+
+
+<script>
+  let contadorVentanas = 0;
+
+  function crearVentanaOrden() {
+    contadorVentanas += 1;
+    const idVentana = `orden-${contadorVentanas}`;
+
+    const ventana = document.createElement('div');
+    ventana.id = idVentana;
+    ventana.style.border = '1px solid #ccc';
+    ventana.style.margin = '10px 0';
+    ventana.style.padding = '10px';
+    ventana.style.background = '#f9f9f9';
+
+    ventana.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong>Orden de trabajo #${contadorVentanas}</strong>
+        <button onclick="cerrarVentana('${idVentana}')">✖ Cerrar</button>
+      </div>
+      <div class="contenido-orden">Cargando formulario...</div>
+    `;
+
+    document.getElementById('area-trabajo').appendChild(ventana);
+
+    fetch('/ordenes/formulario/')
+      .then(res => res.text())
+      .then(html => {
+        ventana.querySelector('.contenido-orden').innerHTML = html;
+      });
+  }
+
+  function cerrarVentana(id) {
+    const ventana = document.getElementById(id);
+    if (ventana) ventana.remove();
+  }
+
+  function abrirModal(tipo) {
+    const modal = document.getElementById(`modal-${tipo}`);
+    modal.style.display = 'block';
+
+    const contenedor = document.getElementById(`formulario-${tipo}`);
+    if (contenedor) {
+      fetch(`/${tipo}/formulario/`)
+        .then(response => response.text())
+        .then(html => {
+          contenedor.innerHTML = html;
+        });
+    }
+  }
+
+  function cerrarModal(tipo) {
+    document.getElementById(`modal-${tipo}`).style.display = 'none';
+  }
+
+  document.addEventListener('submit', function(e) {
+  if (e.target && e.target.id === 'form-orden') {
+    e.preventDefault();
+
+    const form = e.target;
+    const datos = new FormData(form);
+
+    fetch('/ordenes/cliente/guardar/', {
+  method: 'POST',
+  headers: { 'X-CSRFToken': datos.get('csrfmiddlewaretoken') },
+  body: datos
+})
+
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        form.closest('.contenido-orden').innerHTML = `<div style="color: green;">✅ Orden #${data.orden_id} guardada correctamente</div>`;
+        setTimeout(() => {
+          form.closest('.contenido-orden').parentElement.remove(); // Cierra la ventana
+        }, 1500);
+      } else {
+        alert('Error al guardar la orden');
+      }
+    });
+  }
+});
+
+
+</script>
+
+
+

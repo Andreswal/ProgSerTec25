@@ -1,0 +1,44 @@
+<!-- Sección: Cargar nuevo cliente -->
+<h3>➕ Nuevo cliente</h3>
+<form id="form-cliente" method="POST">
+  {% csrf_token %}
+  {{ cliente_form.as_p }}
+  <button type="submit">Guardar cliente</button>
+</form>
+<hr>
+
+<!-- Sección: Cargar nuevo equipo -->
+<h3>➕ Nuevo equipo</h3>
+<form id="form-equipo" method="POST">
+  {% csrf_token %}
+  {{ equipo_form.as_p }}
+  <button type="submit">Guardar equipo</button>
+</form>
+<hr>
+
+<!-- Sección: Crear orden de trabajo -->
+<h3>📝 Nueva orden de trabajo</h3>
+<form id="form-orden" method="POST">
+  {% csrf_token %}
+  <label>Cliente:</label>
+  <select name="cliente_id">
+    {% for cliente in clientes %}
+      <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+    {% endfor %}
+  </select>
+
+  <label>Equipo:</label>
+  <select name="equipo_id">
+    {% for equipo in equipos %}
+      <option value="{{ equipo.id }}">{{ equipo }}</option>
+    {% endfor %}
+  </select>
+
+  <label>Falla declarada:</label>
+  <textarea name="falla_declarada"></textarea>
+
+  <label>Estado visual:</label>
+  <textarea name="estado_visual"></textarea>
+
+  <button type="submit">Guardar orden</button>
+</form>
