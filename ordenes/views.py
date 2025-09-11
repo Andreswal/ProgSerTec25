@@ -178,21 +178,42 @@ def guardar_orden_ajax(request):
         return JsonResponse({'success': True, 'orden_id': orden.id})
     return JsonResponse({'success': False}, status=400)
 
-from django.http import JsonResponse
-from django.http import JsonResponse
 
-def guardar_cliente_ajax(request):
-    if request.method == 'POST':
-        form = ClienteForm(request.POST)
-        if form.is_valid():
-            cliente = form.save()
-            return JsonResponse({'success': True, 'id': cliente.id, 'nombre': cliente.nombre})
-    return JsonResponse({'success': False})
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .forms import ClienteForm, EquipoForm
+from .models import OrdenTrabajo
 
-def guardar_equipo_ajax(request):
+@csrf_exempt
+def guardar_orden_completa(request):
     if request.method == 'POST':
-        form = EquipoForm(request.POST)
-        if form.is_valid():
-            equipo = form.save()
-            return JsonResponse({'success': True, 'id': equipo.id, 'nombre': str(equipo)})
-    return JsonResponse({'success': False})
+        cliente_form = ClienteForm(request.POST)
+        equipo_form = EquipoForm(request.POST)
+
+        if cliente_form.is_valid() and equipo_form.is_valid():
+            cliente = cliente_form.save()
+            equipo = equipo_form.save()
+
+            orden = OrdenTrabajo.objects.create(
+                cliente=cliente,
+                equipo=equipo,
+                falla_declarada=request.POST.get('falla_declarada', ''),
+                estado_visual=request.POST.get('estado_visual', '')
+            )
+
+            return JsonResponse({'success': True, 'orden_id': orden.id})
+        else:
+            return JsonResponse({'success': False, 'errores': {
+                'cliente': cliente_form.errors,
+                'equipo': equipo_form.errors
+            }})
+
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from .models import Cliente
+
+def listar_clientes_ajax(request):
+    clientes = Cliente.objects.all()
+    html = render_to_string('ordenes/partials/lista_clientes.html', {'clientes': clientes})
+    return JsonResponse({'html': html})
+

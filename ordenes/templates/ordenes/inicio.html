@@ -29,6 +29,14 @@
   </div>
 </div>
 
+<div id="modal-clientes" class="modal" style="display:none;">
+  <div class="modal-contenido" style="max-height: 400px; overflow-y: auto;">
+    <span class="cerrar" onclick="cerrarModalClientes()">&times;</span>
+    <h3>📋 Clientes cargados</h3>
+    <div id="lista-clientes">Cargando...</div>
+  </div>
+</div>
+
 
 <script>
   let contadorVentanas = 0;
@@ -111,8 +119,112 @@
   }
 });
 
+document.addEventListener('input', function () {
+  const clienteCampos = document.querySelectorAll('#form-completo input[name^="cliente"]');
+  const equipoCampos = document.querySelectorAll('#form-completo input[name^="equipo"]');
+
+  const clienteCompleto = Array.from(clienteCampos).every(c => c.value.trim() !== '');
+  const equipoCompleto = Array.from(equipoCampos).every(e => e.value.trim() !== '');
+
+  if (clienteCompleto && equipoCompleto) {
+    document.getElementById('btn-guardar-orden').style.display = 'block';
+  }
+});
+
+document.addEventListener('submit', function (e) {
+  if (e.target.id === 'form-completo') {
+    e.preventDefault();
+    const datos = new FormData(e.target);
+
+    fetch('/ordenes/guardar-completo/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': datos.get('csrfmiddlewaretoken') },
+      body: datos
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        e.target.innerHTML = `<div style="color: green;">✅ Orden #${data.orden_id} generada correctamente</div>`;
+        setTimeout(() => {
+          e.target.closest('.contenido-orden').parentElement.remove();
+        }, 2000);
+      } else {
+        alert('Error al guardar. Revisá los campos.');
+      }
+    });
+  }
+});
+
+function abrirBuscadorClientes() {
+  const modal = document.getElementById('modal-clientes');
+  modal.style.display = 'block';
+
+  fetch('/ordenes/clientes/listar/')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('lista-clientes').innerHTML = data.html;
+    });
+}
+
+function abrirModalClientes() {
+  document.getElementById('modal-clientes').style.display = 'block';
+  fetch('/ordenes/clientes/listar/')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('lista-clientes').innerHTML = data.html;
+    });
+}
+
+function cerrarModalClientes() {
+  document.getElementById('modal-clientes').style.display = 'none';
+}
+
+function seleccionarCliente(nombre, telefono) {
+  document.querySelector('input[name="nombre"]').value = nombre;
+  document.querySelector('input[name="telefono"]').value = telefono;
+  cerrarModalClientes();
+}
+
+function filtrarClientes() {
+  const filtro = document.getElementById('busqueda-cliente').value.toLowerCase();
+  const items = document.querySelectorAll('#clientes-lista li');
+  items.forEach(item => {
+    const nombre = item.getAttribute('data-nombre').toLowerCase();
+    item.style.display = nombre.includes(filtro) ? 'block' : 'none';
+  });
+}
+
+
+function cerrarModalClientes() {
+  document.getElementById('modal-clientes').style.display = 'none';
+}
+
+function seleccionarCliente(nombre, telefono) {
+  document.querySelector('input[name="nombre"]').value = nombre;
+  document.querySelector('input[name="telefono"]').value = telefono;
+  cerrarModalClientes();
+}
 
 </script>
 
 
+<div id="modal-clientes" style="
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  max-height: 400px;
+  overflow-y: auto;
+">
+  <button onclick="cerrarModalClientes()" style="float: right;">✖</button>
+  <h3>📋 Buscar cliente</h3>
+  <input type="text" id="busqueda-cliente" placeholder="Buscar por nombre..." oninput="filtrarClientes()" style="width: 100%; margin-bottom: 10px;">
+  <div id="lista-clientes">Cargando...</div>
+</div>
 

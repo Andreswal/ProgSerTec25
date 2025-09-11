@@ -18,9 +18,9 @@ urlpatterns = [
     path('equipo/modal/', views.crear_equipo_modal, name='crear_equipo_modal'),
     path('formulario/', views.formulario_orden, name='formulario_orden'),
     path('guardar/', views.guardar_orden_ajax, name='guardar_orden_ajax'),
-    path('cliente/guardar/', views.guardar_cliente_ajax, name='guardar_cliente_ajax'),
-    path('equipo/guardar/', views.guardar_equipo_ajax, name='guardar_equipo_ajax'),
-
+    path('guardar-completo/', views.guardar_orden_completa, name='guardar_orden_completa'),
+    path('clientes/listar/', views.listar_clientes_ajax, name='listar_clientes_ajax'),
+    
 ]
 
 
