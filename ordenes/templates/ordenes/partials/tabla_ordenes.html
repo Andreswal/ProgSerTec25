@@ -1,0 +1,27 @@
+<table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background: #f0f0f0;">
+        <th># Orden</th>
+        <th>Fecha</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Estado</th>
+        <th>Cliente</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for orden in ordenes %}
+      <tr>
+        <td>{{ orden.id }}</td>
+        <td>{{ orden.fecha_ingreso|date:"d/m/Y" }}</td>
+        <td>{{ orden.equipo.marca }}</td>
+        <td>{{ orden.equipo.modelo }}</td>
+        <td>{{ orden.estado }}</td>
+        <td>{{ orden.cliente.nombre }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">No hay órdenes registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  

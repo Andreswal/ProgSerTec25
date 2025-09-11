@@ -20,7 +20,9 @@ urlpatterns = [
     path('guardar/', views.guardar_orden_ajax, name='guardar_orden_ajax'),
     path('guardar-completo/', views.guardar_orden_completa, name='guardar_orden_completa'),
     path('clientes/listar/', views.listar_clientes_ajax, name='listar_clientes_ajax'),
-    
+    path('equipo/buscar/', views.buscar_equipo_por_serie, name='buscar_equipo_por_serie'),
+    path('listar/', views.listar_ordenes, name='listar_ordenes'),
+
 ]
 
 

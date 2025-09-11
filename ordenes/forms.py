@@ -13,7 +13,7 @@ class ClienteForm(forms.ModelForm):
 class EquipoForm(forms.ModelForm):
     class Meta:
         model = Equipo
-        fields = '__all__'
+        exclude = ['cliente']
 
 from django import forms
 from .models import Marca

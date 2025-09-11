@@ -19,7 +19,18 @@
   <hr>
 
   <h3>🛠️ Datos del equipo</h3>
-  {{ equipo_form.as_p }}
+
+  <p>{{ equipo_form.numero_serie.label_tag }} {{ equipo_form.numero_serie }}</p>
+  <p>{{ equipo_form.imei.label_tag }} {{ equipo_form.imei }}</p>
+  <p>{{ equipo_form.tipo.label_tag }} {{ equipo_form.tipo }}</p>
+  <p>{{ equipo_form.marca.label_tag }} {{ equipo_form.marca }}</p>
+  <p>{{ equipo_form.modelo.label_tag }} {{ equipo_form.modelo }}</p>
+  <p>{{ equipo_form.accesorios.label_tag }} {{ equipo_form.accesorios }}</p>
+  <p>{{ equipo_form.estado_visual.label_tag }} {{ equipo_form.estado_visual }}</p>
+  <p>{{ equipo_form.falla_declarada.label_tag }} {{ equipo_form.falla_declarada }}</p>
+  <p>{{ equipo_form.fecha_compra.label_tag }} {{ equipo_form.fecha_compra }}</p>
+  <p>{{ equipo_form.en_garantia.label_tag }} {{ equipo_form.en_garantia }}</p>
+  <p>{{ equipo_form.fuera_garantia_uso.label_tag }} {{ equipo_form.fuera_garantia_uso }}</p>
 
   <hr>
 

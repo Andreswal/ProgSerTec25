@@ -1,6 +1,8 @@
 <h1>Panel principal de gestión</h1>
 
 <div style="display: flex; flex-direction: column; gap: 12px; max-width: 300px;">
+  <button onclick="abrirModalOrdenes()">📋 Ver órdenes ingresadas</button>
+
   <button onclick="crearVentanaOrden()" style="width: 100%;">➕ Crear nueva orden de trabajo</button>
 
   <a href="{% url 'listar_equipos' %}">
@@ -66,7 +68,9 @@
       .then(res => res.text())
       .then(html => {
         ventana.querySelector('.contenido-orden').innerHTML = html;
+        activarAutocompletadoSerie(ventana);  // ← activamos el script
       });
+
   }
 
   function cerrarVentana(id) {
@@ -172,6 +176,10 @@ function abrirModalClientes() {
     .then(res => res.json())
     .then(data => {
       document.getElementById('lista-clientes').innerHTML = data.html;
+    })
+    .catch(err => {
+      document.getElementById('lista-clientes').innerHTML = 'Error al cargar clientes.';
+      console.error('Error al cargar clientes:', err);
     });
 }
 
@@ -205,7 +213,164 @@ function seleccionarCliente(nombre, telefono) {
   cerrarModalClientes();
 }
 
+const campoSerie = document.querySelector('input[name="numero_serie"]');
+
+campoSerie.addEventListener('change', buscarEquipoPorSerie);
+campoSerie.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault(); // evita que se envíe el formulario
+    buscarEquipoPorSerie();
+  }
+});
+
+function asignarValorCampo(contenedor, nombreCampo, valor) {
+    const campo = contenedor.querySelector(`[name="${nombreCampo}"]`);
+    if (!campo) return;
+
+    if (campo.tagName === 'SELECT') {
+      const existe = [...campo.options].some(opt => opt.value === valor);
+      if (!existe) {
+        const nuevaOpcion = document.createElement('option');
+        nuevaOpcion.value = valor;
+        nuevaOpcion.textContent = valor;
+        campo.appendChild(nuevaOpcion);
+      }
+      campo.value = valor;
+    } else {
+      campo.value = valor;
+    }
+  }
+
+function buscarEquipoPorSerie() {
+  const serie = campoSerie.value.trim();
+  if (serie.length === 0) return;
+
+  fetch(`/ordenes/equipo/buscar/?numero_serie=${encodeURIComponent(serie)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.existe) {
+        const eq = data.equipo;
+        document.querySelector('input[name="imei"]').value = eq.imei;
+        document.querySelector('input[name="tipo"]').value = eq.tipo;
+        document.querySelector('input[name="marca"]').value = eq.marca;
+        document.querySelector('input[name="modelo"]').value = eq.modelo;
+        document.querySelector('textarea[name="accesorios"]').value = eq.accesorios;
+        document.querySelector('textarea[name="estado_visual"]').value = eq.estado_visual;
+        document.querySelector('textarea[name="falla_declarada"]').value = eq.falla_declarada;
+        document.querySelector('input[name="fecha_compra"]').value = eq.fecha_compra;
+        document.querySelector('input[name="en_garantia"]').checked = eq.en_garantia;
+        document.querySelector('input[name="fuera_garantia_uso"]').checked = eq.fuera_garantia_uso;
+
+        mostrarMensajeEquipoExistente();
+      }
+    });
+}
+
+function mostrarMensajeEquipoExistente() {
+  let aviso = document.getElementById('aviso-equipo');
+  if (!aviso) {
+    aviso = document.createElement('div');
+    aviso.id = 'aviso-equipo';
+    aviso.style.color = 'green';
+    aviso.style.marginTop = '10px';
+    campoSerie.parentElement.appendChild(aviso);
+  }
+  aviso.textContent = '✅ Equipo ya registrado. Datos completados automáticamente.';
+}
+
+function activarAutocompletadoSerie(contenedor) {
+  const campoSerie = contenedor.querySelector('input[name="numero_serie"]');
+  if (!campoSerie) return;
+
+  campoSerie.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      setTimeout(() => buscarEquipoPorSerie(campoSerie), 100);
+    }
+  });
+}
+
+function buscarEquipoPorSerie(campoSerie) {
+  const serie = campoSerie.value.trim();
+  if (serie.length === 0) return;
+
+  fetch(`/ordenes/equipo/buscar/?numero_serie=${encodeURIComponent(serie)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.existe) {
+        const eq = data.equipo;
+        const contenedor = campoSerie.closest('form');
+
+        asignarValorCampo(contenedor, 'imei', eq.imei);
+        asignarValorCampo(contenedor, 'tipo', eq.tipo);
+        asignarValorCampo(contenedor, 'marca', eq.marca);
+        asignarValorCampo(contenedor, 'modelo', eq.modelo);
+        asignarValorCampo(contenedor, 'accesorios', eq.accesorios);
+        asignarValorCampo(contenedor, 'estado_visual', eq.estado_visual);
+        asignarValorCampo(contenedor, 'falla_declarada', eq.falla_declarada);
+        asignarValorCampo(contenedor, 'fecha_compra', eq.fecha_compra);
+
+        contenedor.querySelector('input[name="en_garantia"]').checked = eq.en_garantia;
+        contenedor.querySelector('input[name="fuera_garantia_uso"]').checked = eq.fuera_garantia_uso;
+
+        mostrarMensajeEquipoExistente(campoSerie);
+      }
+    });
+}
+
+
+function mostrarMensajeEquipoExistente(campoSerie) {
+  let aviso = campoSerie.parentElement.querySelector('#aviso-equipo');
+  if (!aviso) {
+    aviso = document.createElement('div');
+    aviso.id = 'aviso-equipo';
+    aviso.style.color = 'green';
+    aviso.style.marginTop = '10px';
+    campoSerie.parentElement.appendChild(aviso);
+  }
+  aviso.textContent = '✅ Equipo ya registrado. Datos completados automáticamente.';
+}
+
+function abrirModalOrdenes() {
+  document.getElementById('modal-ordenes').style.display = 'block';
+
+  fetch('/ordenes/listar/')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('tabla-ordenes').innerHTML = data.html;
+    })
+    .catch(err => {
+      document.getElementById('tabla-ordenes').innerHTML = 'Error al cargar órdenes.';
+      console.error('Error al cargar órdenes:', err);
+    });
+}
+
+function cerrarModalOrdenes() {
+  document.getElementById('modal-ordenes').style.display = 'none';
+}
+
 </script>
+
+
+<div id="modal-ordenes" style="
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  max-height: 500px;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 800px;
+">
+  <button onclick="cerrarModalOrdenes()" style="float: right;">✖</button>
+  <h3>📋 Órdenes ingresadas</h3>
+  <div id="tabla-ordenes">Cargando...</div>
+</div>
 
 
 <div id="modal-clientes" style="

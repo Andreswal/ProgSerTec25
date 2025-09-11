@@ -203,10 +203,14 @@ def guardar_orden_completa(request):
 
             return JsonResponse({'success': True, 'orden_id': orden.id})
         else:
+            print("Errores al guardar:")
+            print("Cliente:", cliente_form.errors)
+            print("Equipo:", equipo_form.errors)
             return JsonResponse({'success': False, 'errores': {
                 'cliente': cliente_form.errors,
                 'equipo': equipo_form.errors
             }})
+
 
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -215,5 +219,38 @@ from .models import Cliente
 def listar_clientes_ajax(request):
     clientes = Cliente.objects.all()
     html = render_to_string('ordenes/partials/lista_clientes.html', {'clientes': clientes})
+    return JsonResponse({'html': html})
+
+from django.http import JsonResponse
+from .models import Equipo
+
+def buscar_equipo_por_serie(request):
+    serie = request.GET.get('numero_serie', '').strip()
+    try:
+        equipo = Equipo.objects.get(numero_serie=serie)
+        data = {
+            'imei': equipo.imei,
+            'tipo': equipo.tipo.id,
+            'marca': equipo.marca.id,
+            'modelo': equipo.modelo.id,
+            'accesorios': equipo.accesorios,
+            'estado_visual': equipo.estado_visual,
+            'falla_declarada': equipo.falla_declarada,
+            'fecha_compra': equipo.fecha_compra.strftime('%Y-%m-%d') if equipo.fecha_compra else '',
+            'en_garantia': equipo.en_garantia,
+            'fuera_garantia_uso': equipo.fuera_garantia_por_uso
+        }
+        return JsonResponse({'existe': True, 'equipo': data})
+    except Equipo.DoesNotExist:
+        return JsonResponse({'existe': False})
+
+
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from .models import OrdenTrabajo
+
+def listar_ordenes(request):
+    ordenes = OrdenTrabajo.objects.select_related('equipo').order_by('-id')
+    html = render_to_string('ordenes/partials/tabla_ordenes.html', {'ordenes': ordenes})
     return JsonResponse({'html': html})
 

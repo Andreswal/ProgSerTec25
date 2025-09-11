@@ -71,18 +71,18 @@ class Equipo(models.Model):
         ('otro', 'Otro'),
     ]
 
+    numero_serie = models.CharField(max_length=30, blank=True)
+    imei = models.CharField(max_length=30, blank=True)
     tipo = models.ForeignKey(TipoEquipo, on_delete=models.SET_NULL, null=True)
     marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True)
     modelo = models.ForeignKey(Modelo, on_delete=models.SET_NULL, null=True)
-    imei = models.CharField(max_length=30, blank=True)
-    numero_serie = models.CharField(max_length=30, blank=True)
     accesorios = models.TextField(blank=True)
     estado_visual = models.TextField(blank=True)
     falla_declarada = models.TextField()
     fecha_compra = models.DateField(blank=True, null=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     en_garantia = models.BooleanField(default=False)
     fuera_garantia_por_uso = models.BooleanField(default=False)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.tipo})"

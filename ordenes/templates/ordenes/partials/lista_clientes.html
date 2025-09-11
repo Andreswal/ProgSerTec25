@@ -1,6 +1,6 @@
-<ul id="clientes-lista" style="list-style: none; padding: 0;">
+<ul id="clientes-lista">
   {% for cliente in clientes %}
-    <li data-nombre="{{ cliente.nombre }}" style="margin-bottom: 8px;">
+    <li data-nombre="{{ cliente.nombre }}">
       <button onclick="seleccionarCliente('{{ cliente.nombre }}', '{{ cliente.telefono }}')">
         {{ cliente.nombre }} - {{ cliente.telefono }}
       </button>
@@ -9,6 +9,7 @@
     <li>No hay clientes cargados.</li>
   {% endfor %}
 </ul>
+
 
 
   
